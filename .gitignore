@@ -1,0 +1,6 @@
+#folders I want not tracked;
+docs/
+
+#a .env just incase coz, idk you never know and to add flesh to my file
+.env
+
