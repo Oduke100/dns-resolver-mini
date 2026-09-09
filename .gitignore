@@ -4,3 +4,5 @@ docs/
 #a .env just incase coz, idk you never know and to add flesh to my file
 .env
 
+#we add a .db one so that we dont commit our database to the net LOL
+.db
