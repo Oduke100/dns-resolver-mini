@@ -6,3 +6,6 @@ docs/
 
 #we add a .db one so that we dont commit our database to the net LOL
 .db
+
+#we add a block to the other mambo jumbo that we have had since the commencing of work by our system
+__pycache__
