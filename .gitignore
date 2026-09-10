@@ -5,7 +5,9 @@ docs/
 .env
 
 #we add a .db one so that we dont commit our database to the net LOL
-.db
+#new thing I learnt today, you dont just add like .db you add a * before it its called a wildcard this will make the file watch out for everything with that
+#extensiom
+*.db
 
 #we add a block to the other mambo jumbo that we have had since the commencing of work by our system
 __pycache__
