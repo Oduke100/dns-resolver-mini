@@ -1,0 +1,3 @@
+# Had to remove os, json and sqlite3 turns out those are standard for the python lib and no need for a new install
+
+dnspython
