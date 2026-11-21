@@ -1,80 +1,93 @@
-from database import  set_dns, get_all, get_dns, delete_dns
-from checker import check
-from database import init_db
+import json
+import dns.resolver
 
+exit_code = 0
+filepath  = "ips.json"
 
-#another gotcha I came across is that when any filename in your codebase matches the library you are trying to import, python throws an error coz it checks
-#your file first before checking the library, always name the files differently and preferrably further away from library packages you will use
-init_db()
+while exit_code == 0:
+    with open(filepath, "a") as file:
+        file.close()
 
-try:
-	while True:
-		command=input("dns> ")
+    data       = input("DNS >>>> ")
+    data_parts = data.split(" ", maxsplit=1)
 
-		parts=command.split()
-		parts[0].lower()
+    argument   = data_parts[0]
 
-		if parts[0]=="insert":
-			set_dns(parts[1], parts[2], parts[3])
-			print(f"dns created. Key:{parts[1]}")
+    if argument == "status":
+        print("Resolver is up and running!")
 
-		elif parts[0]=="gall":
-			records=get_all()
-			print(records)
+    elif argument == "oduke":
+        print("Yes Master, at your service!!")
 
-		elif parts[0]=="gdns":
-			record=get_dns(parts[1])
+    elif argument == "find":
+        flag        = False
+        domains     = data_parts[1].split(", ")
+        dns_records = []
+        
+        with open(filepath, "r") as file:
+            for f in file:
+                dns_records.append(json.loads(f))
 
-			if record is not None:
-				print(record)
+        for domain in domains:
+            if any(d["domain_name"] == domain for d in dns_records):
+                flag = True
+            else:
+                flag = False
+            
+        if flag == True:
+            for domain in domains:
+                for d in dns_records:
+                    if domain == d["domain_name"]:
+                        print(f"""domain_name : {domain}\ndomain_addresses : {d["domain_addresses"]}""")
+                        
+        else:        
+            domain_record = {}
 
-			elif record is None:
-				md=parts[1].split()
+            for domain in domains:
+                addresses     = []
+                domain_addresses = dns.resolver.resolve(domain, "A")
+            
+                for address in domain_addresses:
+                    addresses.append(address.address)
+                
+                domain_record = {
+                    "domain_name"      : domain,
+                    "domain_addresses" : addresses 
+                }
+                
+                with open(filepath, "a") as file:
+                    json.dump(domain_record, file)
+                    file.write("\n")
+                    
+                print(f"""domain_name : {domain}\ndomain_addresses : {addresses}""")
+                        
+            print("Domain recorded!")
 
-				addresses=check(parts[1])
-				#we had to add an enumarate attribute for the dns lookups with more than one address this allows us to store them numbered
-				#like pinterest1, pinterest2 and so on
+    elif argument == "resolve":
+        dns_records = []
+        domains = data_parts[1].split(", ")
 
-				for index, a in enumerate(addresses):
+        with open(filepath, "r") as file:
+            for f in file:
+                dns_records.append(json.loads(f))
 
-					set_dns((parts[1] + str(index)), a, md[0])
+        for domain in domains:
+            for d in dns_records:
+                if domain == d["domain_name"]:
+                    print(f"""domain_name : {domain}\ndomain_addresses : {d["domain_addresses"]}""")
+                    
+    elif argument == "dns-logs":
+        dns_records = []
+        with open(filepath, "r") as file:
+            for f in file:
+                dns_records.append(f.strip())
 
-					print(f"The address for the domain-name: {parts[1]} is {a}")
+        for d in dns_records:
+            print(d)
+        
+    elif argument == "exit":
+        print("Exitting DNS-resolver-mini gracefully!")
+        exit_code = 1
 
-		elif parts[0]=="rem":
-			delete_dns(parts[1])
-
-			print(f"dns with key: {parts[1]} deleted successfully")
-
-#		elif parts[0]=="resolve":
-#			check(parts[1])
-
-#			print(f"address for the key: {parts[1]} is: ")
-
-		elif parts[0]=="help":
-			print("""
-			dns takes the following command format:
-
-			[argument] [values]
-
-			arguments; 
-				insert-to create a dns record
-				gall-to get all dns records in storage
-				gdns-to get a specific dns record and value is passed after the argument
-				rem-to remove a dns record and the key is supplied 
-
-			values:
-				insert takes three values in the following order:
-					first is the key(ie, google.com)
-					second is the address/value(ie, 1.1.1.1)
-					third is the metadata(simple one word like: google)
-
-			exit is the hard exit command.
-				""")
-
-
-		elif  command=="exit":
-			break
-
-except KeyboardInterrupt:
-		print("\nExiting...")
+    else:
+        print("enter a valid command or type help for help -- NOT YET IMPLIMENTED!!!")
